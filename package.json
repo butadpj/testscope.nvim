@@ -1,0 +1,16 @@
+{
+  "name": "testscope.nvim",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Neovim test browser for Go, TypeScript and JavaScript",
+  "scripts": {
+    "test": "node tests/scanner.test.cjs",
+    "test:go": "go test scripts/scan-go.go scripts/scan-go_test.go"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

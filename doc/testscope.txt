@@ -1,0 +1,82 @@
+*testscope.txt*  Browse Go, TypeScript, and JavaScript tests
+
+Requires Neovim 0.10+. Go files need Go 1.18+; JavaScript/TypeScript files need
+Node.js 18+ and a project-local TypeScript >=5, <7.
+
+COMMANDS                                                *testscope-commands*
+
+:Testscope           Open the current buffer's test browser.
+:Testscope!          Open in focus mode with a clean editor backdrop.
+:TestscopeClose      Close the browser.
+
+KEYS                                                    *testscope-keys*
+
+<CR>     Jump to the selected test or suite declaration.
+<Tab>    Fold/unfold the selected group. Space and za also work.
+h / l    Collapse/go to parent; expand/go to first child.
+zM / zR  Collapse/expand all groups.
+/        Filter names, intent comments, and ancestors (plain text).
+c        Clear filter.
+r        Reparse, including unsaved source edits.
+p        Toggle preview.
+P        Focus preview to scroll. Tab returns to the outline.
+f        Toggle focus mode for a clean screenshot.
+?        Show keyboard help.
+y        Yank the selected name into the unnamed register.
+q, <Esc> Close.
+
+SETUP                                                   *testscope-setup*
+>
+  require("testscope").setup({
+    node = "node",
+    go = "go",
+    typescript_path = nil,
+    width = 0.92,
+    height = 0.8,
+    preview = true,
+    preview_min_width = 160,
+    border = "rounded",
+  })
+<
+typescript_path is an optional absolute path to typescript/lib/typescript.js.
+Typescript resolves from the test file's project, then the plugin's node_modules.
+Highlight groups use the Testscope prefix and follow the active colorscheme.
+The surface is opaque even when NormalFloat is transparent. Highlight groups can
+be customized with nvim_set_hl after the colorscheme loads.
+
+LAYOUT                                                  *testscope-layout*
+
+The test list gets the full browser width on compact screens. Long titles wrap
+at word boundaries with hanging indents. j/k move between entries and skip title
+continuations. Selection covers the entire entry, including its badges.
+
+At preview_min_width browser columns, source appears beside the list. Below that
+width, p opens source over the list; Tab/Esc returns to tests. Source uses original
+line numbers and removes shared indentation. Compact list height fits its content.
+
+The MAP strip shows the current position in the visible tree, not test results.
+Focus mode adds an editor backdrop and expands the browser's available width.
+
+DISCOVERY                                               *testscope-discovery*
+
+Go: TestXxx(*testing.T) functions, nested t.Run calls, testing import aliases,
+and literal slice/array table names (inline or local variables). Leading comments
+above functions and inline subtests appear as wrapped, searchable descriptions.
+Parallel/Skip badges describe source calls, including conditional calls.
+Computed names stay dynamic; named callbacks show a helper callback badge and
+their bodies are not expanded. Benchmarks, fuzz tests, examples, TestMain, and
+uncalled function literals are omitted. Go counts top-level tests and known leaf
+cases in the outline. Tables mutated at runtime, computed tables, branches,
+build tags, helpers, and name normalization can change the runner's final count.
+The standard-library helper is compiled with go run; first use may warm Go's
+build cache. No project modules are loaded and no test code is executed.
+
+Supports Vitest, Jest globals/@jest/globals, and ESM node:test. Discovers suites,
+tests, imported aliases, namespace imports, and Node callback-context subtests.
+Expands literal each/for arrays and simple const tables into named cases. Dynamic
+tables, tagged tables, and parameterized suites retain their source templates.
+The helper never evaluates test code or runner configuration. Runtime-generated
+registrations, custom wrappers, and loops may differ from the source outline.
+There is no pass/fail status. The count reflects static source discovery.
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
