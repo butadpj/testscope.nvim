@@ -37,10 +37,13 @@ With lazy.nvim:
 }
 ```
 
-To hack on a local checkout instead, add `dev = true` to the spec and set
-`dev = { path = "~/Projects", fallback = true }` in `require("lazy").setup()`.
-lazy.nvim then loads `~/Projects/testscope.nvim` when it exists and clones from
-GitHub when it does not.
+To hack on a local checkout, add this to the spec. lazy.nvim loads the checkout
+when it exists and clones from GitHub when it does not:
+
+```lua
+dir = vim.fn.isdirectory(vim.fn.expand("~/Projects/testscope.nvim")) == 1
+    and vim.fn.expand("~/Projects/testscope.nvim") or nil,
+```
 
 Try it with an isolated config from a checkout:
 
