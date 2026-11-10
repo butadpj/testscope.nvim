@@ -43,19 +43,29 @@ function runnerBinding(name, runner) {
   return { kind, runner, modifiers };
 }
 
+function supported(ts) {
+  const major = Number(String(ts?.version).split(".")[0]);
+  return major >= 5 && major < 7;
+}
+
 function loadTypeScript(filename, explicit) {
   if (explicit) return require(resolve(explicit));
+  let project = null;
   try {
-    return createRequire(resolve(filename))("typescript");
+    project = createRequire(resolve(filename))("typescript");
   } catch (error) {
     if (error.code !== "MODULE_NOT_FOUND") throw error;
-    try {
-      return require("typescript");
-    } catch {
-      throw new Error(
-        "TypeScript was not found. Install typescript (>=5, <7) in your project or set testscope's typescript_path.",
-      );
-    }
+  }
+  // Projects often pin an older compiler; prefer the plugin's copy over an unsupported one.
+  if (project && supported(project)) return project;
+  try {
+    return require("typescript");
+  } catch {
+    throw new Error(
+      project
+        ? `The project's TypeScript ${project.version} is unsupported (need >=5, <7). Run \`npm install\` in the testscope.nvim directory or set testscope's typescript_path.`
+        : "TypeScript was not found. Install typescript (>=5, <7) in your project or set testscope's typescript_path.",
+    );
   }
 }
 
